@@ -1,18 +1,4 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
-
-/**
- * @title ProofMesh
- * @dev A decentralized proof-of-authenticity and verification network
- * Creates a mesh of interconnected proofs for documents, assets, and claims
- */
-contract Project is Ownable, ReentrancyGuard, Pausable {
-    
-    // Enum for proof status
+Enum for proof status
     enum ProofStatus {
         Pending,
         Verified,
@@ -20,16 +6,7 @@ contract Project is Ownable, ReentrancyGuard, Pausable {
         Revoked
     }
     
-    // Enum for proof type
-    enum ProofType {
-        Document,
-        Asset,
-        Identity,
-        Claim,
-        Certificate
-    }
-    
-    // Struct to represent a proof in the mesh
+    Struct to represent a proof in the mesh
     struct Proof {
         bytes32 proofHash;
         address creator;
@@ -44,15 +21,7 @@ contract Project is Ownable, ReentrancyGuard, Pausable {
         bool isActive;
     }
     
-    // Struct for verifier information
-    struct Verifier {
-        bool isAuthorized;
-        uint256 verificationCount;
-        uint256 reputationScore;
-        uint256 registeredAt;
-    }
-    
-    // Struct for proof statistics
+    Struct for proof statistics
     struct ProofStats {
         uint256 totalProofs;
         uint256 verifiedProofs;
@@ -60,20 +29,7 @@ contract Project is Ownable, ReentrancyGuard, Pausable {
         uint256 revokedProofs;
     }
     
-    // State variables
-    mapping(bytes32 => Proof) public proofs;
-    mapping(address => Verifier) public verifiers;
-    mapping(address => bytes32[]) public userProofs;
-    mapping(bytes32 => mapping(address => bool)) public hasVerified;
-    
-    bytes32[] public allProofHashes;
-    address[] public authorizedVerifiers;
-    
-    uint256 public totalProofsCreated;
-    uint256 public minVerificationsRequired;
-    uint256 public verifierReputationThreshold;
-    
-    // Events
+    Events
     event ProofCreated(
         bytes32 indexed proofHash,
         address indexed creator,
@@ -133,19 +89,7 @@ contract Project is Ownable, ReentrancyGuard, Pausable {
         require(bytes(_metadataURI).length > 0, "Metadata URI required");
         require(_expiryTime == 0 || _expiryTime > block.timestamp, "Invalid expiry time");
         
-        // Generate unique proof hash
-        bytes32 proofHash = keccak256(
-            abi.encodePacked(
-                _dataHash,
-                msg.sender,
-                block.timestamp,
-                totalProofsCreated
-            )
-        );
-        
-        require(proofs[proofHash].creator == address(0), "Proof already exists");
-        
-        // Create new proof
+        Create new proof
         Proof storage newProof = proofs[proofHash];
         newProof.proofHash = proofHash;
         newProof.creator = msg.sender;
@@ -156,71 +100,17 @@ contract Project is Ownable, ReentrancyGuard, Pausable {
         newProof.metadataURI = _metadataURI;
         newProof.isActive = true;
         
-        // Track proof
-        allProofHashes.push(proofHash);
-        userProofs[msg.sender].push(proofHash);
-        totalProofsCreated++;
-        
-        emit ProofCreated(proofHash, msg.sender, _proofType, _metadataURI);
-        
-        return proofHash;
-    }
-    
-    /**
-     * @dev Verifies a proof in the mesh
-     * @param _proofHash Hash of the proof to verify
-     */
-    function verifyProof(bytes32 _proofHash) external nonReentrant whenNotPaused {
-        require(proofs[_proofHash].creator != address(0), "Proof does not exist");
-        require(verifiers[msg.sender].isAuthorized, "Not an authorized verifier");
-        require(!hasVerified[_proofHash][msg.sender], "Already verified by you");
-        require(proofs[_proofHash].isActive, "Proof is not active");
-        require(proofs[_proofHash].status == ProofStatus.Pending, "Proof already processed");
-        
-        Proof storage proof = proofs[_proofHash];
-        
-        // Check if proof has expired
+        Check if proof has expired
         if (proof.expiryTime > 0 && block.timestamp > proof.expiryTime) {
             proof.status = ProofStatus.Rejected;
             revert("Proof has expired");
         }
         
-        // Add verifier
-        proof.verifiers.push(msg.sender);
-        hasVerified[_proofHash][msg.sender] = true;
-        
-        // Update verifier stats
+        Update verifier stats
         verifiers[msg.sender].verificationCount++;
         verifiers[msg.sender].reputationScore += 10;
         
-        // Check if minimum verifications met
-        if (proof.verifiers.length >= minVerificationsRequired) {
-            proof.status = ProofStatus.Verified;
-            proof.verifiedAt = block.timestamp;
-        }
-        
-        emit ProofVerified(_proofHash, msg.sender, block.timestamp);
-    }
-    
-    /**
-     * @dev Links two proofs together in the mesh
-     * @param _proofHash1 First proof hash
-     * @param _proofHash2 Second proof hash
-     */
-    function linkProofs(
-        bytes32 _proofHash1,
-        bytes32 _proofHash2
-    ) external whenNotPaused {
-        require(proofs[_proofHash1].creator != address(0), "Proof 1 does not exist");
-        require(proofs[_proofHash2].creator != address(0), "Proof 2 does not exist");
-        require(
-            proofs[_proofHash1].creator == msg.sender || 
-            proofs[_proofHash2].creator == msg.sender,
-            "Must be creator of at least one proof"
-        );
-        require(_proofHash1 != _proofHash2, "Cannot link proof to itself");
-        
-        // Add bidirectional links
+        Add bidirectional links
         proofs[_proofHash1].linkedProofs.push(_proofHash2);
         proofs[_proofHash2].linkedProofs.push(_proofHash1);
         
@@ -453,3 +343,6 @@ contract Project is Ownable, ReentrancyGuard, Pausable {
         return result;
     }
 }
+// 
+update
+// 
