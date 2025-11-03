@@ -4,7 +4,32 @@ Enum for proof status
         Verified,
         Rejected,
         Revoked
+    // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.26;
+
+/**
+ * @title ProofMesh
+ * @notice A decentralized proof-sharing network that allows users to submit,
+ *         verify, and connect digital proofs in a trustless environment.
+ */
+contract Project {
+    address public admin;
+    uint256 public proofCount;
+
+    struct Proof {
+        uint256 id;
+        address creator;
+        string dataHash;
+        string category;
+        uint256 timestamp;
+        bool verified;
     }
+
+    mapping(uint256 => Proof) public proofs;
+
+    event ProofSubmitted(uint256 indexed id, address indexed creator, string dataHash, string category);
+    event ProofVerified(uint256 indexed id, address indexed verifier
+
     
     Struct to represent a proof in the mesh
     struct Proof {
