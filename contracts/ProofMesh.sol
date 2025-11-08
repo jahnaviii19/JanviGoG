@@ -1,27 +1,6 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
-
-/**
- * @title ProofMesh
- * @notice A decentralized proof-of-truth and reputation mesh that validates and links
- *         multiple proofs, identities, and content claims across the blockchain ecosystem.
- *
- *         ProofMesh is designed as a decentralized "web of verification", enabling users,
- *         organizations, and dApps to create, validate, and interconnect proofs of authenticity,
- *         ownership, or data integrity.
- */
-contract ProofMesh {
-    address public owner;
-    uint256 public totalProofs;
-
-    struct Proof {
-        uint256 id;
-        address creator;
-        string proofHash;        // Hash or IPFS CID representing the proof content
-        string metadataURI;      // Additional metadata or document reference
-        uint256 timestamp;       // Block time of creation
-        bool verified;           // Admin or DAO-verified flag
-        uint256 reputationScore; // Proof-level credibility (community-weighted)
+Hash or IPFS CID representing the proof content
+        string metadataURI;      Block time of creation
+        bool verified;           Proof-level credibility (community-weighted)
     }
 
     mapping(uint256 => Proof) public proofs;
@@ -134,3 +113,6 @@ contract ProofMesh {
         return totalProofs;
     }
 }
+// 
+End
+// 
